@@ -2,34 +2,31 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ "main" ]
-    tags:
-      - v1.**
-  pull_request:
-    branches: [ "main" ]
+    branches: [ main ] # 或者你希望运行build job的分支
+    tags-ignore: [ '*' ] # 忽略tag，这样在push时不会触发package job
+  create: # 当创建一个新的tag时触发workflow
+    tags: [ '*' ] # 对所有tags触发
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: load source code
         uses: actions/checkout@v4
-   
       - name: Setup Node.js 18
         uses: actions/setup-node@v4
         with:
           node-version: 18
-
       - name: Install dependencies
-        run: |
-            npm install  # Replace with your package manager if needed (e.g., yarn install)
-            ls
-            pwd
-
+        run: npm install  # Replace with your package manager if needed (e.g., yarn install)
       - name: Build project  # Add your specific build command here (e.g., npm run build)
         run: npm run build
 
+  package:
+    runs-on: ubuntu-latest
+    needs: build # package job需要在build job之后运行
+    if: github.event_name == 'create' && startsWith(github.ref, 'refs/tags/') # 仅当触发事件是创建tag时运行
+    steps:
       - name: Login to Aliyun Container Registry (ACR)
         uses: aliyun/acr-login@v1 # 使用阿里云镜像服务action
         with:
@@ -37,7 +34,6 @@ jobs:
           region-id: cn-zhangjiakou
           username: "${{ secrets.REGISTRY_USERNAME }}"
           password: "${{ secrets.REGISTRY_PASSWORD }}"
-          
       - name: Build and Push Docker Image
         env:
           IMAGE_TAG: ${{ github.sha }} # 用于标记容器版本号
