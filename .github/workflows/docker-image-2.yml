@@ -11,15 +11,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-
+      - name: load source code
+        uses: actions/checkout@v4
+   
       - name: Setup Node.js 18
         uses: actions/setup-node@v4
         with:
           node-version: 18
 
       - name: Install dependencies
-        run: npm install  # Replace with your package manager if needed (e.g., yarn install)
+        run: |
+            npm install  # Replace with your package manager if needed (e.g., yarn install)
+            ls
+            pwd
 
       - name: Build project  # Add your specific build command here (e.g., npm run build)
         run: npm run build
