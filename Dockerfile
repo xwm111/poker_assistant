@@ -5,28 +5,7 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat
 
 
-WORKDIR /app
-RUN pwd
-RUN ls
-RUN npm install
-RUN npm run build
-
-FROM base AS builder
-
-RUN apk update && apk add --no-cache git
-
-ENV OPENAI_API_KEY=""
-ENV GOOGLE_API_KEY=""
-ENV CODE=""
-
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
-
-RUN yarn build
-
 FROM base AS runner
-WORKDIR /app
 
 RUN apk add proxychains-ng
 
@@ -35,10 +14,10 @@ ENV OPENAI_API_KEY=""
 ENV GOOGLE_API_KEY=""
 ENV CODE=""
 
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/.next/server ./.next/server
+COPY public ./public
+COPY .next/standalone ./
+COPY .next/static ./.next/static
+COPY .next/server ./.next/server
 
 EXPOSE 3000
 
