@@ -20,4 +20,3 @@ jobs:
         node-version: 18
     - name: install dependency and build 
     - run: npm install
-    - run: npm build
