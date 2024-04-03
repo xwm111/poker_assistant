@@ -6,6 +6,8 @@ RUN apk add --no-cache libc6-compat
 
 
 WORKDIR /app
+RUN pwd
+RUN ls
 RUN npm install -g pnpm
 RUN pnpm install
 RUN pnpm build
