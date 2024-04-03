@@ -35,8 +35,6 @@ jobs:
           username: "${{ secrets.REGISTRY_USERNAME }}"
           password: "${{ secrets.REGISTRY_PASSWORD }}"
       - name: Build and Push Docker Image
-        env:
-          IMAGE_TAG: ${GITHUB_REF#refs/*/tags/} # 用于标记容器版本号
         run: |
-            docker build -t registry.cn-zhangjiakou.aliyuncs.com/homek8s/mtt-assistant:$IMAGE_TAG .
-            docker push registry.cn-zhangjiakou.aliyuncs.com/homek8s/mtt-assistant:$IMAGE_TAG
+            docker build -t registry.cn-zhangjiakou.aliyuncs.com/homek8s/mtt-assistant:${{ github.ref_name }} .
+            docker push registry.cn-zhangjiakou.aliyuncs.com/homek8s/mtt-assistant:${{ github.ref_name }}
