@@ -4,8 +4,9 @@ FROM base AS deps
 
 RUN apk add --no-cache libc6-compat
 
-WORKDIR /app
 
+WORKDIR /app
+RUN npm install -g pnpm
 RUN pnpm install
 RUN pnpm build
 
