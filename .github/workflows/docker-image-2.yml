@@ -36,5 +36,7 @@ jobs:
           password: "${{ secrets.REGISTRY_PASSWORD }}"
       - name: Build and Push Docker Image
         run: |
+            pwd
+            ls
             docker build -t registry.cn-zhangjiakou.aliyuncs.com/homek8s/mtt-assistant:${{ github.ref_name }} .
             docker push registry.cn-zhangjiakou.aliyuncs.com/homek8s/mtt-assistant:${{ github.ref_name }}
