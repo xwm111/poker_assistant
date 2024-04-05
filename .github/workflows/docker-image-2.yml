@@ -3,9 +3,9 @@ name: Docker Image CI
 on:
   push:
     branches: [ main ] # 或者你希望运行build job的分支
-    tags-ignore: [ '*' ] # 忽略tag，这样在push时不会触发package job
+    # tags-ignore: [ '*' ] # 忽略tag，这样在push时不会触发package job
   create: # 当创建一个新的tag时触发workflow
-    tags: [ 'p*' ] # 对所有tags触发
+    tags: [ '*' ] # 对所有tags触发
 
 jobs:
   build:
