@@ -33,7 +33,7 @@ export const { auth, signIn, signOut } = NextAuth({
         return user
           //上线后开启
           // const parsedCredentials = z
-          //   .object({ email: z.string().email(), password: z.string().min(6) })
+          //   .obj({ email: z.string().email(), password: z.string().min(6) })
           //   .safeParse(credentials);
             
           // if (parsedCredentials.success) {

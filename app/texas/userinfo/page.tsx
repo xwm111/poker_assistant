@@ -8,6 +8,7 @@ import React, { useState } from 'react';
 import {gogpt} from '@/app/lib/actions'
 
 import type { Chat } from '@/app/lib/definitions';
+import clsx from 'clsx';
 export default function Page() {
   const [showChoose, setShowChoose] = useState<boolean>(false);
   //正在选择的卡牌
@@ -79,11 +80,20 @@ export default function Page() {
 
   const [airesult,setAiresult] = useState<string>("......");
   //提交数据到gpt
-  const  submitToGpt = async ()=>{
-    const message = await gogpt(item1,item2,selectedValue,bbs,position)
-    setAiresult(message)
+  const  submitToGpt =  ()=>{
+    gogpt(item1,item2,selectedValue,bbs,position).then((message)=>{
+      console.log("Aimessage:"+message);
+      SetSubmitting(false);
+      SetIsShow(true)
+      setAiresult(message);
+    })
+    SetIsShow(false)
+    SetSubmitting(true)
     console.log("done");
   }
+
+  const [showResult,SetIsShow] = useState(false)
+  const [submitting, SetSubmitting] =useState(false)
 
   const chatsarr:Chat[] = [
     {
@@ -180,14 +190,27 @@ export default function Page() {
       </div>
       <div className="mt-4 text-sm font-medium">您的位置</div>
       <Sit handlePositionChange={handlePositionChange}></Sit>
-      <div className="mt-2 flex h-8 items-center rounded-lg bg-blue-600 px-4 text-center text-sm font-medium text-white transition-colors hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
-        <span className="flex w-full justify-center" onClick={submitToGpt}>提 交</span>
+      <div className={clsx("mt-2 flex h-8 items-center rounded-lg bg-blue-400",{
+        "bg-gray-400":submitting
+      })}>
+        <button className="flex w-full justify-center"
+         
+       onClick={()=>{
+         
+          submitToGpt()
+          }} disabled={submitting} >提 交</button>
       </div>
-      <ChatBox chats={chatsarr}></ChatBox>
+      {/* <ChatBox chats={chatsarr}></ChatBox> */}
+      {submitting && <div className='flex justify-center items-center '>
+        <p className="text-2xl font-semibold animate-pulse">AI分析中...</p>
+      </div>}
+      
 
-      <div className=' mt-4 p-4 flex flex-row mx-auto bg-sky-300'>
-          <div>行动: {airesult}</div>
-      </div>
+      {showResult &&  <div className=' mt-4 p-4 flex flex-row mx-auto bg-sky-300'>
+          <div>AI推荐行动: {airesult}</div>
+      </div>}
+
+
       <PokerChoose
         isShow={showChoose}
         choosedCards={choosedCards}

@@ -194,14 +194,15 @@ export default function Page() {
   };
 
   const  submitToGpt = async ()=>{
-    console.log(firstSelectCard)
-    console.log(secondSelectCard)
-    console.log(selectedValue)
-    console.log(inputValue);
-    const message = await gogpt(firstSelectCard,secondSelectCard,selectedValue,inputValue,"")
-    console.log(message);
-    setAiresult(message)
-    console.log("done");
+    // console.log(firstSelectCard)
+    // console.log(secondSelectCard)
+    // console.log(selectedValue)
+    // console.log(inputValue);
+    // const message = await gogpt(firstSelectCard,secondSelectCard,selectedValue,inputValue,"")
+    // console.log(message);
+    // setAiresult(message)
+    // console.log("done");
+    alert("此版本更新中")
   }
   return (
     <>
