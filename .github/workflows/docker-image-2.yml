@@ -1,42 +1,52 @@
-name: Docker Image CI
+name: Next.js Workflow
 
 on:
   push:
-    branches: [ main ] # 或者你希望运行build job的分支
-    tags-ignore: [ '*' ] # 忽略tag，这样在push时不会触发package job
-  create: # 当创建一个新的tag时触发workflow
-    tags: [ '*' ] # 对所有tags触发
-
+    branches:
+      - main
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  
 jobs:
-  build:
+  build-and-push-image:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      
     steps:
-      - name: load source code
+      - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Setup Node.js 18
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
-      - name: Install dependencies
-        run: npm install  # Replace with your package manager if needed (e.g., yarn install)
-      - name: Build project  # Add your specific build command here (e.g., npm run build)
-        run: npm run build
 
-  package:
-    runs-on: ubuntu-latest
-    needs: build # package job需要在build job之后运行
-    if: github.event_name == 'create' && startsWith(github.ref, 'refs/tags/') # 仅当触发事件是创建tag时运行
-    steps:
-      - name: Login to Aliyun Container Registry (ACR)
-        uses: aliyun/acr-login@v1 # 使用阿里云镜像服务action
+      - name: Log in to the Container registry
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
         with:
-          login-server: registry.cn-zhangjiakou.aliyuncs.com
-          region-id: cn-zhangjiakou
-          username: "${{ secrets.REGISTRY_USERNAME }}"
-          password: "${{ secrets.REGISTRY_PASSWORD }}"
-      - name: Build and Push Docker Image
-        run: |
-            pwd
-            ls
-            docker build -t registry.cn-zhangjiakou.aliyuncs.com/homek8s/mtt-assistant:${{ github.ref_name }} .
-            docker push registry.cn-zhangjiakou.aliyuncs.com/homek8s/mtt-assistant:${{ github.ref_name }}
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build Next.js app
+        run: pnpm build
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
