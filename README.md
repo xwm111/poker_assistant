@@ -1,5 +1,21 @@
-## Next.js App Router Course - Starter
+# MTT ASSISTANT RULES
+## 规则参数
+### 比赛前期
+1. 筹码量
+2. 行动次序
+2.1 第一个行动
+2.2 第二个行动
+2.3 第三个行动
+2.4 第四个行动
+2.5 对抗 4B Allin
 
-This is the starter template for the Next.js App Router Course. It contains the starting code for the dashboard application.
 
-For more information, see the [course curriculum](https://nextjs.org/learn) on the Next.js Website.
+
+### 刚进圈
+
+
+
+
+
+
+### 泡沫期
