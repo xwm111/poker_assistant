@@ -3,16 +3,18 @@ import React, { createContext, useContext, useState, ReactNode, useEffect } from
 interface Settings {
   playerCount: number;
   smallBlind: number;
+  playStyle: 'LAG' | 'TAG';
 }
 
 interface SettingsContextType {
   settings: Settings;
-  updateSettings: (newSettings: Settings) => void;
+  updateSettings: (newSettings: Partial<Settings>) => void;
 }
 
 const defaultSettings: Settings = {
-  playerCount: 9,
-  smallBlind: 1,
+  playerCount: 6,
+  smallBlind: 10,
+  playStyle: 'LAG',
 };
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
@@ -38,13 +40,16 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // 当设置更新时保存到localStorage
-  const updateSettings = (newSettings: Settings) => {
-    setSettings(newSettings);
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newSettings));
-    } catch (e) {
-      console.error('Error saving settings:', e);
-    }
+  const updateSettings = (newSettings: Partial<Settings>) => {
+    setSettings(prev => {
+      const updated = { ...prev, ...newSettings };
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      } catch (e) {
+        console.error('Error saving settings:', e);
+      }
+      return updated;
+    });
   };
 
   // 在加载完成前显示默认设置

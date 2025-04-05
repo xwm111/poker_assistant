@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { X } from 'lucide-react';
 import { useSettings } from '@/contexts/SettingsContext';
 
@@ -8,22 +8,12 @@ interface SettingsProps {
 
 const Settings: React.FC<SettingsProps> = ({ onClose }) => {
   const { settings, updateSettings } = useSettings();
-  const [playerCount, setPlayerCount] = useState(settings.playerCount);
-  const [smallBlind, setSmallBlind] = useState(settings.smallBlind);
-
-  const handleSave = () => {
-    updateSettings({
-      playerCount,
-      smallBlind,
-    });
-    onClose();
-  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+      <div className="bg-white rounded-lg p-6 w-96 max-w-full">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold">设置</h2>
+          <h2 className="text-xl font-semibold">设置</h2>
           <button
             onClick={onClose}
             className="p-1 rounded-full hover:bg-gray-100"
@@ -33,23 +23,23 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
         </div>
 
         <div className="space-y-6">
-          {/* 玩家人数设置 */}
+          {/* 玩家数量设置 */}
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700">
-              默认牌桌人数
+              玩家数量
             </label>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-4 gap-2">
               {[6, 7, 8, 9].map(count => (
                 <button
                   key={count}
-                  type="button"
-                  onClick={() => setPlayerCount(count)}
-                  className={`px-4 py-2 border rounded-md text-sm
-                    ${playerCount === count
-                      ? 'bg-indigo-50 border-indigo-500 text-indigo-700'
-                      : 'bg-white hover:bg-gray-50 text-gray-700'}`}
+                  onClick={() => updateSettings({ playerCount: count })}
+                  className={`px-4 py-2 text-sm font-medium rounded-md
+                    ${settings.playerCount === count
+                      ? 'bg-indigo-50 text-indigo-600 border border-indigo-200'
+                      : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+                    }`}
                 >
-                  {count} 人桌
+                  {count}
                 </button>
               ))}
             </div>
@@ -58,37 +48,45 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
           {/* 小盲注设置 */}
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700">
-              小盲注金额
+              小盲注
             </label>
-            <div className="relative">
-              <input
-                type="number"
-                value={smallBlind}
-                onChange={(e) => setSmallBlind(Number(e.target.value))}
-                min={1}
-                step={1}
-                className="w-full px-3 py-2 border rounded-md"
-                placeholder="输入小盲注金额"
-              />
+            <input
+              type="number"
+              value={settings.smallBlind}
+              onChange={(e) => updateSettings({ smallBlind: parseInt(e.target.value) || 0 })}
+              className="w-full px-3 py-2 border rounded-md text-sm"
+              placeholder="输入小盲注金额"
+            />
+          </div>
+
+          {/* 玩家风格设置 */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">
+              玩家风格
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => updateSettings({ playStyle: 'LAG' })}
+                className={`px-4 py-2 text-sm font-medium rounded-md
+                  ${settings.playStyle === 'LAG'
+                    ? 'bg-indigo-50 text-indigo-600 border border-indigo-200'
+                    : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+                  }`}
+              >
+                松凶 (LAG)
+              </button>
+              <button
+                onClick={() => updateSettings({ playStyle: 'TAG' })}
+                className={`px-4 py-2 text-sm font-medium rounded-md
+                  ${settings.playStyle === 'TAG'
+                    ? 'bg-indigo-50 text-indigo-600 border border-indigo-200'
+                    : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+                  }`}
+              >
+                紧凶 (TAG)
+              </button>
             </div>
           </div>
-        </div>
-
-        <div className="mt-6 flex justify-end space-x-3">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 border rounded-md text-gray-700 hover:bg-gray-50"
-          >
-            取消
-          </button>
-          <button
-            type="button"
-            onClick={handleSave}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
-          >
-            保存
-          </button>
         </div>
       </div>
     </div>

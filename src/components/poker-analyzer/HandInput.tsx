@@ -85,6 +85,7 @@ const HandInput: React.FC<HandInputProps> = ({ onAnalysisResult }) => {
           street: selectedStreet,
           playerCount: settings.playerCount,
           playerStacks: playerStacks,
+          playStyle: settings.playStyle,
         }),
       });
 

@@ -6,6 +6,17 @@ interface PlayerStack {
   stack: number;
 }
 
+interface RequestData {
+  hand: string;
+  board: string;
+  position: number;
+  actions: string;
+  playerStacks: PlayerStack[];
+  street: string;
+  playerCount: number;
+  playStyle: 'LAG' | 'TAG';
+}
+
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
@@ -13,17 +24,23 @@ export async function POST(request: Request) {
   logger.debug("POST /api/analyze called");
 
   try {
-    const requestData = await request.json();
-    const { hand, board, position, actions, playerStacks, street, playerCount } = requestData;
+    const requestData = await request.json() as RequestData;
+    const { hand, board, position, actions, playerStacks, street, playerCount, playStyle } = requestData;
 
     // 格式化玩家筹码信息
-    const stacksInfo = (playerStacks as PlayerStack[])
+    const stacksInfo = playerStacks
       .map(stack => `位置${stack.position}的筹码: ${stack.stack}`)
       .join(', ');
 
+    // 根据玩家风格选择prompt
+    const stylePrompts = {
+      LAG: '你是一名职业德州扑克牌手，拥有多年的实战经验，打法风格是松凶（Loose Aggressive, LAG），以激进的行动和高频率的参与牌局著称。你擅长通过广泛的手牌范围（包括强牌和投机性手牌）施加压力，并在有利位置或读牌准确时最大化收益。你是一个盈利型玩家，长期在现金桌或锦标赛中保持正收益，熟悉数学期望、位置优势、对手倾向和心理博弈。',
+      TAG: '你是一名职业德州扑克牌手，拥有丰富的实战经验，打法风格是紧凶（Tight Aggressive, TAG），以严格的手牌选择和激进的下注策略著称。你只在有利位置或手牌强度较高时参与牌局，擅长利用位置优势、对手的弱点和数学计算来最大化收益。你是一个盈利型玩家，长期在现金桌或锦标赛中保持正收益，精通牌局数学、范围分析和对手行为解读。'
+    } as const;
+
     // 构建更详细的prompt
     const prompt = `
-你是一名职业德州扑克牌手，拥有多年的实战经验，打法风格是松凶（Loose Aggressive, LAG），以激进的行动和高频率的参与牌局著称。你擅长通过广泛的手牌范围（包括强牌和投机性手牌）施加压力，并在有利位置或读牌准确时最大化收益。你是一个盈利型玩家，长期在现金桌或锦标赛中保持正收益，熟悉数学期望、位置优势、对手倾向和心理博弈。
+${stylePrompts[playStyle]}
 
 请分析这手德州扑克牌局，并使用markdown格式输出分析结果:
 
