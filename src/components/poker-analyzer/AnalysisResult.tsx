@@ -1,5 +1,6 @@
 import React from 'react';
 import { CheckCircle2 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 
 interface AnalysisResultProps {
   result: string | null;
@@ -17,12 +18,12 @@ const AnalysisResult: React.FC<AnalysisResultProps> = ({ result }) => {
           <div className="flex-shrink-0">
             <CheckCircle2 className="h-5 w-5 text-green-400" />
           </div>
-          <div className="ml-3">
+          <div className="ml-3 w-full">
             <h3 className="text-sm font-medium text-gray-900">
               分析结果
             </h3>
-            <div className="mt-2 text-sm text-gray-700 whitespace-pre-wrap">
-              {result}
+            <div className="mt-2 text-sm text-gray-700 prose prose-sm max-w-none">
+              <ReactMarkdown>{result}</ReactMarkdown>
             </div>
           </div>
         </div>
