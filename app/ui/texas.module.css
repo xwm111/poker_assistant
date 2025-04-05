@@ -1,8 +1,0 @@
-/* 扑克牌背面 */
-.card-pattern {
-    background-image: radial-gradient(circle at center, #6b7280 10%, transparent 0),
-                      radial-gradient(circle at center, #6b7280 10%, transparent 0);
-    background-size: 15px 15px;
-    background-position: 0 0, 7.5px 7.5px;
-  }
-  
