@@ -1,7 +1,4 @@
-"use client"
-"use client";
-
-import Image from "next/image";
+'use client'
 import HandInput from '@/components/poker-analyzer/HandInput';
 import AnalysisResult from '@/components/poker-analyzer/AnalysisResult';
 import Settings from '@/components/Settings';

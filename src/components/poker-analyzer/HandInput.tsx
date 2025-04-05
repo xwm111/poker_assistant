@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from 'react';
-import { Loader2, ChevronDown, Users, X } from 'lucide-react';
+import { Loader2, X } from 'lucide-react';
 import { useSettings } from '@/contexts/SettingsContext';
 import ActionInput from './ActionInput';
 
@@ -12,7 +12,6 @@ interface HandInputProps {
 const CARD_RANKS = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
 const CARD_SUITS = ['♠', '♥', '♦', '♣'];
 const STREET_NAMES = ['翻牌前', '翻牌', '转牌', '河牌'];
-const PLAYER_COUNTS = [6, 7, 8, 9];
 
 // 获取位置描述
 const getPositionDescription = (position: number, totalPlayers: number) => {
@@ -21,6 +20,10 @@ const getPositionDescription = (position: number, totalPlayers: number) => {
   if (position === totalPlayers) return '庄家位';
   return `位置 ${position}`;
 };
+
+// 添加类型定义
+type CommunityCardIndex = `community${number}`;
+type SelectingCardType = 'card1' | 'card2' | CommunityCardIndex | null;
 
 const HandInput: React.FC<HandInputProps> = ({ onAnalysisResult }) => {
   const { settings } = useSettings();
@@ -51,7 +54,7 @@ const HandInput: React.FC<HandInputProps> = ({ onAnalysisResult }) => {
   }, [settings.playerCount]);
 
   // 添加选牌状态
-  const [selectingCard, setSelectingCard] = useState<'card1' | 'card2' | `community${number}` | null>(null);
+  const [selectingCard, setSelectingCard] = useState<SelectingCardType>(null);
   const [showRankSelector, setShowRankSelector] = useState(false);
   const [showSuitSelector, setShowSuitSelector] = useState(false);
   const [tempRank, setTempRank] = useState<string | null>(null);
@@ -235,7 +238,7 @@ const HandInput: React.FC<HandInputProps> = ({ onAnalysisResult }) => {
   ) => (
     <div
       onClick={() => {
-        setSelectingCard(`community${index}` as any);
+        setSelectingCard(`community${index}` as CommunityCardIndex);
         setShowRankSelector(true);
         setShowSuitSelector(false);
         setTempRank(null);

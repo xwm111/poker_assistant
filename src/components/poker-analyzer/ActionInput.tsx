@@ -25,16 +25,13 @@ interface PlayerStack {
 type Street = '翻牌前' | '翻牌' | '转牌' | '河牌';
 
 const ActionInput: React.FC<ActionInputProps> = ({
-  actions,
   onActionsChange,
-  selectedPosition,
   selectedStreet,
   onStacksChange,
 }) => {
   const { settings } = useSettings();
   const [playerStacks, setPlayerStacks] = useState<PlayerStack[]>([]);
   const [playerActions, setPlayerActions] = useState<PlayerAction[]>([]);
-  const [currentActionPosition, setCurrentActionPosition] = useState(3);
   const [showActionInput, setShowActionInput] = useState(false);
   const [actionAmount, setActionAmount] = useState<string>('');
   const [currentStreet, setCurrentStreet] = useState<Street>('翻牌前');
@@ -190,7 +187,6 @@ const ActionInput: React.FC<ActionInputProps> = ({
 
   const resetActions = () => {
     setPlayerActions([]);
-    setCurrentActionPosition(3);
   };
 
   // 检查是否需要自动添加盲注
@@ -229,27 +225,6 @@ const ActionInput: React.FC<ActionInputProps> = ({
     
     // 返回从翻牌前到当前回合的所有回合
     return streets.slice(0, currentIndex + 1);
-  };
-
-  // 按回合分组显示行动记录
-  const getActionsByStreet = () => {
-    const actionsByStreet: { [key in Street]: PlayerAction[] } = {
-      '翻牌前': [],
-      '翻牌': [],
-      '转牌': [],
-      '河牌': []
-    };
-
-    // 将行动按回合分组
-    playerActions.forEach(action => {
-      actionsByStreet[action.street].push(action);
-    });
-
-    // 返回当前显示的回合的行动
-    return displayStreets.map(street => ({
-      street,
-      actions: actionsByStreet[street]
-    }));
   };
 
   // 渲染单个行动记录
