@@ -109,6 +109,8 @@ ${actions}
         messages: [{ role: "user", content: prompt }],
         stream: false
       }),
+      // 设置120秒超时
+      signal: AbortSignal.timeout(120000)
     });
 
     if (!response.ok) {

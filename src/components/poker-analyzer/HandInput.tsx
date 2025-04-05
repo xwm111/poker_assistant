@@ -87,6 +87,8 @@ const HandInput: React.FC<HandInputProps> = ({ onAnalysisResult }) => {
           playerStacks: playerStacks,
           playStyle: settings.playStyle,
         }),
+        // 设置120秒超时
+        signal: AbortSignal.timeout(120000)
       });
 
       if (!response.ok) {
