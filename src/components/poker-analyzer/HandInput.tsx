@@ -27,6 +27,7 @@ const HandInput: React.FC<HandInputProps> = ({ onAnalysisResult }) => {
   const [loading, setLoading] = useState(false);
   const [selectedPosition, setSelectedPosition] = useState<number | null>(null);
   const [selectedStreet, setSelectedStreet] = useState('翻牌前');
+  const [playerStacks, setPlayerStacks] = useState<Array<{ position: number; stack: number }>>([]);
   
   // 手牌选择状态
   const [selectedHand, setSelectedHand] = useState<{
@@ -80,6 +81,7 @@ const HandInput: React.FC<HandInputProps> = ({ onAnalysisResult }) => {
           actions,
           street: selectedStreet,
           playerCount: settings.playerCount,
+          playerStacks: playerStacks,
         }),
       });
 
@@ -133,14 +135,14 @@ const HandInput: React.FC<HandInputProps> = ({ onAnalysisResult }) => {
     cardType: 'card1' | 'card2',
     card: { rank: string; suit: string } | null
   ) => (
-    <button
-      type="button"
+    <div
       onClick={() => handleCardClick(cardType)}
-      className="relative w-16 h-24 border rounded-lg bg-white shadow-sm flex items-center justify-center"
+      className="relative w-16 h-24 border rounded-lg bg-white shadow-sm flex items-center justify-center cursor-pointer hover:bg-gray-50"
     >
       {card ? (
         <div className="relative w-full h-full flex flex-col items-center justify-center">
           <button
+            type="button"
             onClick={(e) => {
               e.stopPropagation();
               setSelectedHand(prev => ({
@@ -162,7 +164,7 @@ const HandInput: React.FC<HandInputProps> = ({ onAnalysisResult }) => {
       ) : (
         <span className="text-gray-400">选择</span>
       )}
-    </button>
+    </div>
   );
 
   const renderRankSelector = () => (
@@ -231,19 +233,19 @@ const HandInput: React.FC<HandInputProps> = ({ onAnalysisResult }) => {
     index: number,
     card: { rank: string; suit: string } | null
   ) => (
-    <button
-      type="button"
+    <div
       onClick={() => {
         setSelectingCard(`community${index}` as any);
         setShowRankSelector(true);
         setShowSuitSelector(false);
         setTempRank(null);
       }}
-      className="relative w-16 h-24 border rounded-lg bg-white shadow-sm flex items-center justify-center"
+      className="relative w-16 h-24 border rounded-lg bg-white shadow-sm flex items-center justify-center cursor-pointer hover:bg-gray-50"
     >
       {card ? (
         <div className="relative w-full h-full flex flex-col items-center justify-center">
           <button
+            type="button"
             onClick={(e) => {
               e.stopPropagation();
               const newCards = [...communityCards];
@@ -264,7 +266,7 @@ const HandInput: React.FC<HandInputProps> = ({ onAnalysisResult }) => {
       ) : (
         <span className="text-gray-400">选择</span>
       )}
-    </button>
+    </div>
   );
 
   return (
@@ -288,21 +290,18 @@ const HandInput: React.FC<HandInputProps> = ({ onAnalysisResult }) => {
         <label className="block text-sm font-medium text-gray-700">
           你的位置
         </label>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-3 gap-1.5">
           {positions.map(pos => (
             <button
               key={pos}
               type="button"
               onClick={() => setSelectedPosition(pos)}
-              className={`px-3 py-2 border rounded-md text-sm flex flex-col items-center justify-center
+              className={`px-2 py-1.5 border rounded-md text-sm
                 ${selectedPosition === pos 
                   ? 'bg-indigo-50 border-indigo-500 text-indigo-700' 
                   : 'bg-white hover:bg-gray-50'}`}
             >
-              <span className="font-medium">位置 {pos}</span>
-              <span className="text-xs text-gray-500 mt-1">
-                {getPositionDescription(pos, settings.playerCount)}
-              </span>
+              {getPositionDescription(pos, settings.playerCount)}
             </button>
           ))}
         </div>
@@ -352,6 +351,7 @@ const HandInput: React.FC<HandInputProps> = ({ onAnalysisResult }) => {
         onActionsChange={setActions}
         selectedPosition={selectedPosition}
         selectedStreet={selectedStreet}
+        onStacksChange={setPlayerStacks}
       />
 
       {/* 提交按钮 */}

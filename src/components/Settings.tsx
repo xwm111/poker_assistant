@@ -38,17 +38,21 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
             <label className="block text-sm font-medium text-gray-700">
               默认牌桌人数
             </label>
-            <select
-              value={playerCount}
-              onChange={(e) => setPlayerCount(Number(e.target.value))}
-              className="w-full px-3 py-2 border rounded-md bg-white"
-            >
+            <div className="grid grid-cols-2 gap-2">
               {[6, 7, 8, 9].map(count => (
-                <option key={count} value={count}>
+                <button
+                  key={count}
+                  type="button"
+                  onClick={() => setPlayerCount(count)}
+                  className={`px-4 py-2 border rounded-md text-sm
+                    ${playerCount === count
+                      ? 'bg-indigo-50 border-indigo-500 text-indigo-700'
+                      : 'bg-white hover:bg-gray-50 text-gray-700'}`}
+                >
                   {count} 人桌
-                </option>
+                </button>
               ))}
-            </select>
+            </div>
           </div>
 
           {/* 小盲注设置 */}
