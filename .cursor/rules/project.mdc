@@ -9,19 +9,19 @@ alwaysApply: true
 
 # 单元测试使用约定
 1. 使用playwright进行单元测试
-2. 单元测试的用例文件放到项目根目录的 /tests 目录之下
+2. 单元测试的用例文件放到项目根目录的 /src/tests 目录之下
 
 # 项目结构及目录约定
-1. 所有类型的定义和声明 放到项目根目录的 /types目录下，使用文件 module.d.ts文件来保存
-2. 所有模拟数据放在项目根目录的 /mockdata/{modules} 目录下。使用mockjs来动态生成数据
+1. 所有类型的定义和声明 放到项目根目录的 /src/types目录下，使用文件 module.d.ts文件来保存
+2. 所有模拟数据放在项目根目录的 /src/mockdata/{modules} 目录下。使用mockjs来动态生成数据
 3. 业务逻辑代码和类型定义代码分开。
 
 # 查询组件使用约定
 1. 使用 @tanstack/react-query 和 @tanstack/react-query-devtools 版本 ^5.68.0 
-2. 查询的文件保存在项目的根目录 /actions/下，命名方式为 {module}-action.ts,在文件中定义模块相关的网络操作
+2. 查询的文件保存在项目的根目录 /src/actions/下，命名方式为 {module}-action.ts,在文件中定义模块相关的网络操作
 
 # API定义约定
-1. api的定义放在项目的根目录 /app/api/{module}目录下，这是nextjs的app动态路由，文件名为 route.ts,用于给 tanstack调用
+1. api的定义放在项目的根目录 /src/app/api/{module}目录下，这是nextjs的app动态路由，文件名为 route.ts,用于给 tanstack调用
 
 # 日志组件使用约定
 1. 日志统一使用 logger.debug进行记录  导入的方式为 import logger from "@/lib/logger”
