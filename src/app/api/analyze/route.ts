@@ -23,6 +23,8 @@ export async function POST(request: Request) {
 
     // 构建更详细的prompt
     const prompt = `
+你是一名职业德州扑克牌手，拥有多年的实战经验，打法风格是松凶（Loose Aggressive, LAG），以激进的行动和高频率的参与牌局著称。你擅长通过广泛的手牌范围（包括强牌和投机性手牌）施加压力，并在有利位置或读牌准确时最大化收益。你是一个盈利型玩家，长期在现金桌或锦标赛中保持正收益，熟悉数学期望、位置优势、对手倾向和心理博弈。
+
 分析这手德州扑克牌局:
 
 基本信息:
@@ -58,12 +60,13 @@ ${actions}
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-        'HTTP-Referer': 'https://github.com/weimingxu/poker_assistant', // 你的应用URL
-        'X-Title': 'Poker Assistant', // 你的应用名称
+        'HTTP-Referer': 'https://github.com/weimingxu/poker_assistant',
+        'X-Title': 'Poker Assistant',
       },
       body: JSON.stringify({
         model: 'google/gemini-2.5-pro-exp-03-25:free',
         messages: [{ role: "user", content: prompt }],
+        stream: false
       }),
     });
 
@@ -72,7 +75,14 @@ ${actions}
     }
 
     const completion = await response.json();
-    const analysisResult = completion.choices[0].message.content;
+    logger.debug("API Response:", completion);
+
+    // Gemini模型的响应格式与其他模型不同，需要适配
+    const analysisResult = completion.choices?.[0]?.message?.content || 
+                         completion.choices?.[0]?.content ||
+                         completion.candidates?.[0]?.content?.parts?.[0]?.text ||
+                         "无法获取分析结果";
+                         
     return NextResponse.json({ result: analysisResult });
 
   } catch (error) {
