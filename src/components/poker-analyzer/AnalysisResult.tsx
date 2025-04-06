@@ -1,20 +1,65 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { CheckCircle2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 
 interface AnalysisResultProps {
-  result: string | null;
+  result: Response | null;
 }
 
 const AnalysisResult: React.FC<AnalysisResultProps> = ({ result }) => {
-  if (!result) {
+  const [content, setContent] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (!result) {
+      setContent('');
+      return;
+    }
+
+    setIsLoading(true);
+    setContent(''); // 清空之前的内容
+
+    const reader = result.body?.getReader();
+    const decoder = new TextDecoder();
+
+    async function readStream() {
+      if (!reader) return;
+
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          
+          if (done) {
+            setIsLoading(false);
+            break;
+          }
+
+          const text = decoder.decode(value);
+          // 确保每个响应片段都是有效的markdown
+          const formattedText = text
+            .replace(/^[^#\n]*$/, (match) => match + '\n') // 如果没有标题和换行，添加换行
+            .replace(/^(#{1,3}[^#\n]*$)/, '$1\n'); // 如果以标题结尾，添加换行
+
+          setContent(prev => prev + formattedText);
+        }
+      } catch (error) {
+        console.error('Error reading stream:', error);
+        setIsLoading(false);
+      }
+    }
+
+    readStream();
+
+    return () => {
+      reader?.cancel();
+    };
+  }, [result]);
+
+  if (!result && !content) {
     return null;
   }
-
-  // 预处理markdown文本，确保标题前有正确的空行
-  const processedResult = result.replace(/\n(#{1,3})/g, '\n\n$1');
 
   return (
     <div className="mt-6">
@@ -22,7 +67,7 @@ const AnalysisResult: React.FC<AnalysisResultProps> = ({ result }) => {
         <div className="border-b px-6 py-4 flex items-center space-x-3">
           <CheckCircle2 className="h-5 w-5 text-green-500" />
           <h3 className="text-lg font-medium text-gray-900">
-            分析结果
+            分析结果 {isLoading && <span className="text-sm text-gray-500">(正在生成...)</span>}
           </h3>
         </div>
         <div className="px-6 py-4">
@@ -63,7 +108,7 @@ const AnalysisResult: React.FC<AnalysisResultProps> = ({ result }) => {
                 ),
               }}
             >
-              {processedResult}
+              {content}
             </ReactMarkdown>
           </div>
         </div>

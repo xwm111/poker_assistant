@@ -21,7 +21,7 @@ const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
 export async function POST(request: Request) {
-  logger.debug("POST /api/analyze called");
+  logger.info("POST /api/analyze called");
 
   try {
     const requestData = await request.json() as RequestData;
@@ -94,8 +94,14 @@ ${actions}
 
 请确保回答使用以上markdown格式，保持清晰的标题层级和列表格式。`;
 
-    logger.debug("Generated prompt:", prompt);
+    logger.info("Generated prompt:", prompt);
 
+    // 创建一个 TransformStream 用于处理流式响应
+    const stream = new TransformStream();
+    const writer = stream.writable.getWriter();
+    const encoder = new TextEncoder();
+
+    // 发送请求到 OpenRouter API
     const response = await fetch(OPENROUTER_API_URL, {
       method: 'POST',
       headers: {
@@ -107,26 +113,80 @@ ${actions}
       body: JSON.stringify({
         model: 'google/gemini-2.5-pro-exp-03-25:free',
         messages: [{ role: "user", content: prompt }],
-        stream: false
+        stream: true
       }),
-      // 设置120秒超时
-      signal: AbortSignal.timeout(120000)
     });
 
     if (!response.ok) {
       throw new Error(`OpenRouter API error: ${response.status}`);
     }
 
-    const completion = await response.json();
-    logger.debug("API Response:", completion);
+    // 确保响应是可读流
+    if (!response.body) {
+      throw new Error('No response body');
+    }
 
-    // Gemini模型的响应格式与其他模型不同，需要适配
-    const analysisResult = completion.choices?.[0]?.message?.content || 
-                         completion.choices?.[0]?.content ||
-                         completion.candidates?.[0]?.content?.parts?.[0]?.text ||
-                         "无法获取分析结果";
-                         
-    return NextResponse.json({ result: analysisResult });
+    // 创建响应的读取器
+    const reader = response.body.getReader();
+
+    // 处理流式响应
+    (async () => {
+      try {
+        let fullResponse = '';  // 用于收集完整的响应
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) {
+            logger.debug("完整的分析响应:", fullResponse);  // 输出完整响应
+            await writer.close();
+            break;
+          }
+
+          // 解析响应数据
+          const text = new TextDecoder().decode(value);
+          const lines = text.split('\n').filter(line => line.trim() !== '');
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const data = line.slice(6);
+              if (data === '[DONE]') continue;
+
+              try {
+                // 尝试解析JSON
+                let content = '';
+                try {
+                  const parsed = JSON.parse(data);
+                  content = parsed.choices?.[0]?.delta?.content || 
+                           parsed.choices?.[0]?.content ||
+                           parsed.candidates?.[0]?.content?.parts?.[0]?.text || '';
+                } catch (jsonError) {
+                  // 如果JSON解析失败，直接使用文本内容
+                  content = data;
+                  logger.debug("使用原始文本内容:", content);
+                }
+                
+                if (content) {
+                  fullResponse += content;  // 累积响应内容
+                  await writer.write(encoder.encode(content));
+                }
+              } catch (e) {
+                logger.error('处理响应数据时出错:', e);
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error reading stream:', error);
+        logger.error('流读取错误:', error);
+        await writer.abort(error);
+      }
+    })();
+
+    return new Response(stream.readable, {
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+        'Transfer-Encoding': 'chunked',
+      },
+    });
 
   } catch (error) {
     logger.error("Error calling OpenRouter API:", error);

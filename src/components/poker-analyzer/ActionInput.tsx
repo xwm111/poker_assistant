@@ -44,7 +44,7 @@ const ActionInput: React.FC<ActionInputProps> = ({
   useEffect(() => {
     const initialStacks = Array.from({ length: settings.playerCount }, (_, i) => ({
       position: i + 1,
-      stack: 0
+      stack: 4000
     }));
     setPlayerStacks(initialStacks);
   }, [settings.playerCount]);

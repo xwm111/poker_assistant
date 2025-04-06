@@ -4,6 +4,7 @@ import React, { useState, useMemo } from 'react';
 import { Loader2, X } from 'lucide-react';
 import { useSettings } from '@/contexts/SettingsContext';
 import ActionInput from './ActionInput';
+import AnalysisResult from './AnalysisResult';
 
 interface HandInputProps {
   onAnalysisResult: (result: string) => void;
@@ -27,7 +28,9 @@ type SelectingCardType = 'card1' | 'card2' | CommunityCardIndex | null;
 
 const HandInput: React.FC<HandInputProps> = ({ onAnalysisResult }) => {
   const { settings } = useSettings();
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [analysisResult, setAnalysisResult] = useState<Response | null>(null);
   const [selectedPosition, setSelectedPosition] = useState<number | null>(null);
   const [selectedStreet, setSelectedStreet] = useState('翻牌前');
   const [playerStacks, setPlayerStacks] = useState<Array<{ position: number; stack: number }>>([]);
@@ -59,9 +62,11 @@ const HandInput: React.FC<HandInputProps> = ({ onAnalysisResult }) => {
   const [showSuitSelector, setShowSuitSelector] = useState(false);
   const [tempRank, setTempRank] = useState<string | null>(null);
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    setLoading(true);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+
     try {
       const handString = selectedHand.card1 && selectedHand.card2 
         ? `${selectedHand.card1.rank}${selectedHand.card1.suit}${selectedHand.card2.rank}${selectedHand.card2.suit}`
@@ -82,26 +87,22 @@ const HandInput: React.FC<HandInputProps> = ({ onAnalysisResult }) => {
           board: boardString,
           position: selectedPosition,
           actions,
+          playerStacks,
           street: selectedStreet,
           playerCount: settings.playerCount,
-          playerStacks: playerStacks,
           playStyle: settings.playStyle,
         }),
-        // 设置120秒超时
-        signal: AbortSignal.timeout(120000)
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error('分析请求失败');
       }
 
-      const data = await response.json();
-      onAnalysisResult(data.result);
-    } catch (error) {
-      console.error("Error calling analyze API:", error);
-      onAnalysisResult("Error analyzing hand. Please check console for details.");
+      setAnalysisResult(response);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '未知错误');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -364,9 +365,9 @@ const HandInput: React.FC<HandInputProps> = ({ onAnalysisResult }) => {
       <button
         type="submit"
         className="w-full flex items-center justify-center px-4 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-        disabled={loading}
+        disabled={isLoading}
       >
-        {loading ? (
+        {isLoading ? (
           <>
             <Loader2 className="animate-spin -ml-1 mr-2 h-5 w-5" />
             分析中...
@@ -375,6 +376,14 @@ const HandInput: React.FC<HandInputProps> = ({ onAnalysisResult }) => {
           "开始分析"
         )}
       </button>
+
+      <AnalysisResult result={analysisResult} />
+
+      {error && (
+        <div className="text-red-500 text-sm mt-2">
+          {error}
+        </div>
+      )}
     </form>
   );
 };
