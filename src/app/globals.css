@@ -3,6 +3,10 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --card-background: #f8f8f8;
+  --button-background: #f0f0f0;
+  --button-hover: #e8e8e8;
+  --border-color: #e0e0e0;
 }
 
 @theme inline {
@@ -14,8 +18,12 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #121212;
+    --foreground: #e0e0e0;
+    --card-background: #1e1e1e;
+    --button-background: #2d2d2d;
+    --button-hover: #383838;
+    --border-color: #333333;
   }
 }
 
@@ -23,4 +31,21 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+button, 
+input, 
+select {
+  background-color: var(--button-background);
+  border: 1px solid var(--border-color);
+  color: var(--foreground);
+}
+
+button:hover {
+  background-color: var(--button-hover);
+}
+
+.card {
+  background-color: var(--card-background);
+  border: 1px solid var(--border-color);
 }
