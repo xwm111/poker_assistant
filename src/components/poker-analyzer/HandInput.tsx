@@ -175,7 +175,7 @@ const HandInput: React.FC<HandInputProps> = ({ onAnalysisResult }) => {
   );
 
   const renderRankSelector = () => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-gray-900/70 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-4 w-80">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-medium">选择点数</h3>
@@ -205,7 +205,7 @@ const HandInput: React.FC<HandInputProps> = ({ onAnalysisResult }) => {
   );
 
   const renderSuitSelector = () => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-gray-900/70 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-4 w-80">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-medium">选择花色</h3>

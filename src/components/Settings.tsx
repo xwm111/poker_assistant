@@ -10,7 +10,7 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
   const { settings, updateSettings } = useSettings();
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-gray-900/70 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 w-96 max-w-full">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">设置</h2>
@@ -62,7 +62,7 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
           {/* 玩家风格设置 */}
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700">
-              玩家风格
+              你的风格
             </label>
             <div className="grid grid-cols-2 gap-2">
               <button
