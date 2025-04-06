@@ -7,10 +7,10 @@ import { Settings as SettingsIcon } from 'lucide-react';
 import { useState } from 'react';
 
 export default function Home() {
-  const [analysisResult, setAnalysisResult] = useState<string | null>(null);
+  const [analysisResult, setAnalysisResult] = useState<Response | null>(null);
   const [showSettings, setShowSettings] = useState(false);
 
-  const handleAnalysisResult = (result: string) => {
+  const handleAnalysisResult = (result: Response) => {
     setAnalysisResult(result);
   };
 

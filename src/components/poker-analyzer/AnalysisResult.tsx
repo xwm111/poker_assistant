@@ -76,13 +76,13 @@ const AnalysisResult: React.FC<AnalysisResultProps> = ({ result }) => {
               remarkPlugins={[remarkGfm]}
               rehypePlugins={[rehypeRaw]}
               components={{
-                h2: ({node, ...props}) => (
+                h2: ({...props}) => (
                   <h2 className="text-lg font-medium text-gray-900 mt-6 mb-3 pb-2 border-b" {...props} />
                 ),
-                h3: ({node, ...props}) => (
+                h3: ({...props}) => (
                   <h3 className="text-base font-medium text-gray-800 mt-4 mb-2" {...props} />
                 ),
-                p: ({node, children, ...props}) => {
+                p: ({children, ...props}) => {
                   if (children && typeof children === 'string' && children.trim() === '') {
                     return <br />;
                   }
@@ -92,18 +92,18 @@ const AnalysisResult: React.FC<AnalysisResultProps> = ({ result }) => {
                     </p>
                   );
                 },
-                ul: ({node, ...props}) => (
+                ul: ({...props}) => (
                   <ul className="list-disc pl-4 text-gray-600 space-y-1 mb-3" {...props} />
                 ),
-                li: ({node, children, ...props}) => (
+                li: ({children, ...props}) => (
                   <li className="text-gray-600 leading-relaxed" {...props}>
                     {children}
                   </li>
                 ),
-                strong: ({node, ...props}) => (
+                strong: ({...props}) => (
                   <strong className="font-semibold text-gray-900" {...props} />
                 ),
-                code: ({node, ...props}) => (
+                code: ({...props}) => (
                   <code className="px-1 py-0.5 bg-gray-100 rounded text-sm font-mono" {...props} />
                 ),
               }}

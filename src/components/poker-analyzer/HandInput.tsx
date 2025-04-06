@@ -7,7 +7,7 @@ import ActionInput from './ActionInput';
 import AnalysisResult from './AnalysisResult';
 
 interface HandInputProps {
-  onAnalysisResult: (result: string) => void;
+  onAnalysisResult: (result: Response) => void;
 }
 
 const CARD_RANKS = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
@@ -26,7 +26,7 @@ const getPositionDescription = (position: number, totalPlayers: number) => {
 type CommunityCardIndex = `community${number}`;
 type SelectingCardType = 'card1' | 'card2' | CommunityCardIndex | null;
 
-const HandInput: React.FC<HandInputProps> = ({ onAnalysisResult }) => {
+const HandInput: React.FC<HandInputProps> = ({ }) => {
   const { settings } = useSettings();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
