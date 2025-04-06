@@ -159,6 +159,7 @@ ${actions}
                            parsed.choices?.[0]?.content ||
                            parsed.candidates?.[0]?.content?.parts?.[0]?.text || '';
                 } catch (jsonError) {
+                  logger.error('JSON解析失败:', jsonError);
                   // 如果JSON解析失败，直接使用文本内容
                   content = data;
                   logger.debug("使用原始文本内容:", content);
