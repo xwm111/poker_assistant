@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Loader2, X } from 'lucide-react';
 import { useSettings } from '@/contexts/SettingsContext';
 import ActionInput from './ActionInput';
@@ -35,6 +35,20 @@ const HandInput: React.FC<HandInputProps> = ({ }) => {
   const [selectedStreet, setSelectedStreet] = useState('翻牌前');
   const [playerStacks, setPlayerStacks] = useState<Array<{ position: number; stack: number }>>([]);
   
+  // 初始化玩家筹码
+  useEffect(() => {
+    const initialStacks = Array.from({ length: settings.playerCount }, (_, i) => ({
+      position: i + 1,
+      stack: 4000 // 默认筹码量
+    }));
+    setPlayerStacks(initialStacks);
+  }, [settings.playerCount]);
+
+  // 处理筹码变化
+  const handleStacksChange = (newStacks: Array<{ position: number; stack: number }>) => {
+    setPlayerStacks(newStacks);
+  };
+
   // 手牌选择状态
   const [selectedHand, setSelectedHand] = useState<{
     card1: { rank: string; suit: string } | null;
@@ -358,7 +372,7 @@ const HandInput: React.FC<HandInputProps> = ({ }) => {
         onActionsChange={setActions}
         selectedPosition={selectedPosition}
         selectedStreet={selectedStreet}
-        onStacksChange={setPlayerStacks}
+        onStacksChange={handleStacksChange}
       />
 
       {/* 提交按钮 */}
