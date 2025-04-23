@@ -45,7 +45,7 @@ export default function RootLayout({
           }
         `}</style>
       </head>
-      <body className={`antialiased`}>
+      <body className="antialiased bg-gray-50">
         <div id="root">
           {children}
         </div>

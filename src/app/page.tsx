@@ -16,23 +16,23 @@ export default function Home() {
 
   return (
     <SettingsProvider>
-      <div className="min-h-screen bg-gray-50">
-        <div className="fixed top-0 left-0 right-0 bg-white shadow-sm z-10">
-          <div className="px-4 py-3 flex justify-between items-center">
-            <h1 className="text-xl font-bold">德州扑克助手</h1>
+      <div className="min-h-screen bg-background">
+        <div className="fixed top-0 left-0 right-0 bg-card shadow-sm z-10">
+          <div className="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
+            <h1 className="text-xl font-bold text-foreground">德州扑克助手</h1>
             <button
               onClick={() => setShowSettings(true)}
-              className="p-2 rounded-full hover:bg-gray-100"
+              className="p-2 rounded-full hover:bg-secondary"
             >
-              <SettingsIcon className="h-6 w-6 text-gray-600" />
+              <SettingsIcon className="h-6 w-6 text-muted-foreground" />
             </button>
           </div>
         </div>
         
         <main className="pt-16 pb-20">
-          <div className="flex flex-col items-center">
+          <div className="max-w-4xl mx-auto flex flex-col items-center px-4">
             <HandInput onAnalysisResult={handleAnalysisResult} />
-            <div className="w-full max-w-md px-4">
+            <div className="w-full">
               <AnalysisResult result={analysisResult} />
             </div>
           </div>
