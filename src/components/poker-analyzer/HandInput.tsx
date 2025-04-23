@@ -292,7 +292,7 @@ const HandInput: React.FC<HandInputProps> = ({ }) => {
   return (
     <form onSubmit={handleSubmit} className="w-full max-w-md space-y-6 px-4">
       {/* 手牌选择区域 */}
-      <div className="space-y-2">
+      <div className="space-y-2 mt-2">
         <label className="block text-sm font-medium text-gray-700">
           你的手牌
         </label>
