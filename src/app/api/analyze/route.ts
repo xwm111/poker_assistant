@@ -132,7 +132,7 @@ ${actions}
         'X-Title': 'Poker Assistant',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-pro-exp-03-25:free',
+        model: 'microsoft/mai-ds-r1:free',
         messages: [{ role: "user", content: prompt }],
         stream: true
       }),

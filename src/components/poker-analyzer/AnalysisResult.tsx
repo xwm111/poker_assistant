@@ -23,6 +23,7 @@ const AnalysisResult: React.FC<AnalysisResultProps> = ({ result }) => {
 
     const reader = result.body?.getReader();
     const decoder = new TextDecoder();
+    let buffer = '';
 
     async function readStream() {
       if (!reader) return;
@@ -37,12 +38,18 @@ const AnalysisResult: React.FC<AnalysisResultProps> = ({ result }) => {
           }
 
           const text = decoder.decode(value);
-          // 确保每个响应片段都是有效的markdown
-          const formattedText = text
-            .replace(/^[^#\n]*$/, (match) => match + '\n') // 如果没有标题和换行，添加换行
-            .replace(/^(#{1,3}[^#\n]*$)/, '$1\n'); // 如果以标题结尾，添加换行
-
-          setContent(prev => prev + formattedText);
+          buffer += text;
+          
+          // 尝试提取实际的分析内容
+          const contentMatch = buffer.match(/(?:总结|分析结果)[\s\S]*$/);
+          if (contentMatch) {
+            const cleanContent = contentMatch[0]
+              .replace(/^\s*\{[^}]*\}\s*/gm, '') // 移除 JSON 对象
+              .replace(/^\s*"[^"]*"\s*:\s*"[^"]*",?\s*$/gm, '') // 移除 JSON 键值对
+              .trim();
+            
+            setContent(cleanContent);
+          }
         }
       } catch (error) {
         console.error('Error reading stream:', error);
@@ -75,38 +82,6 @@ const AnalysisResult: React.FC<AnalysisResultProps> = ({ result }) => {
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               rehypePlugins={[rehypeRaw]}
-              components={{
-                h2: ({...props}) => (
-                  <h2 className="text-lg font-medium text-gray-900 mt-6 mb-3 pb-2 border-b" {...props} />
-                ),
-                h3: ({...props}) => (
-                  <h3 className="text-base font-medium text-gray-800 mt-4 mb-2" {...props} />
-                ),
-                p: ({children, ...props}) => {
-                  if (children && typeof children === 'string' && children.trim() === '') {
-                    return <br />;
-                  }
-                  return (
-                    <p className="text-gray-600 mb-3 leading-relaxed whitespace-pre-wrap" {...props}>
-                      {children}
-                    </p>
-                  );
-                },
-                ul: ({...props}) => (
-                  <ul className="list-disc pl-4 text-gray-600 space-y-1 mb-3" {...props} />
-                ),
-                li: ({children, ...props}) => (
-                  <li className="text-gray-600 leading-relaxed" {...props}>
-                    {children}
-                  </li>
-                ),
-                strong: ({...props}) => (
-                  <strong className="font-semibold text-gray-900" {...props} />
-                ),
-                code: ({...props}) => (
-                  <code className="px-1 py-0.5 bg-gray-100 rounded text-sm font-mono" {...props} />
-                ),
-              }}
             >
               {content}
             </ReactMarkdown>
