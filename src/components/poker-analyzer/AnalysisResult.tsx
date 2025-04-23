@@ -23,7 +23,6 @@ const AnalysisResult: React.FC<AnalysisResultProps> = ({ result }) => {
 
     const reader = result.body?.getReader();
     const decoder = new TextDecoder();
-    let buffer = '';
 
     async function readStream() {
       if (!reader) return;
@@ -38,18 +37,7 @@ const AnalysisResult: React.FC<AnalysisResultProps> = ({ result }) => {
           }
 
           const text = decoder.decode(value);
-          buffer += text;
-          
-          // 尝试提取实际的分析内容
-          const contentMatch = buffer.match(/(?:总结|分析结果)[\s\S]*$/);
-          if (contentMatch) {
-            const cleanContent = contentMatch[0]
-              .replace(/^\s*\{[^}]*\}\s*/gm, '') // 移除 JSON 对象
-              .replace(/^\s*"[^"]*"\s*:\s*"[^"]*",?\s*$/gm, '') // 移除 JSON 键值对
-              .trim();
-            
-            setContent(cleanContent);
-          }
+          setContent(prev => prev + text);
         }
       } catch (error) {
         console.error('Error reading stream:', error);

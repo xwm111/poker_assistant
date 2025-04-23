@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import logger from '@/libs/logger';
+import OpenAI from 'openai';
 
 interface PlayerStack {
   position: number;
@@ -17,8 +18,17 @@ interface RequestData {
   playStyle: 'LAG' | 'TAG';
 }
 
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
-const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
+// 创建自定义的 OpenAI 实例
+const openai = new OpenAI({
+  apiKey: process.env.OPENROUTER_API_KEY || '',
+  baseURL: 'https://openrouter.ai/api/v1',
+  defaultHeaders: {
+    'HTTP-Referer': 'https://github.com/weimingxu/poker_assistant',
+    'X-Title': 'Poker Assistant',
+  },
+  defaultQuery: undefined,
+  organization: undefined,
+});
 
 export async function POST(request: Request) {
   logger.info("POST /api/analyze called");
@@ -122,80 +132,23 @@ ${actions}
     const writer = stream.writable.getWriter();
     const encoder = new TextEncoder();
 
-    // 发送请求到 OpenRouter API
-    const response = await fetch(OPENROUTER_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-        'HTTP-Referer': 'https://github.com/weimingxu/poker_assistant',
-        'X-Title': 'Poker Assistant',
-      },
-      body: JSON.stringify({
-        model: 'microsoft/mai-ds-r1:free',
-        messages: [{ role: "user", content: prompt }],
-        stream: true
-      }),
+    // 使用 OpenAI 组件发送请求
+    const response = await openai.chat.completions.create({
+      model: 'microsoft/mai-ds-r1:free',
+      messages: [{ role: "user", content: prompt }],
+      stream: true,
     });
-
-    if (!response.ok) {
-      throw new Error(`OpenRouter API error: ${response.status}`);
-    }
-
-    // 确保响应是可读流
-    if (!response.body) {
-      throw new Error('No response body');
-    }
-
-    // 创建响应的读取器
-    const reader = response.body.getReader();
 
     // 处理流式响应
     (async () => {
       try {
-        let fullResponse = '';  // 用于收集完整的响应
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) {
-            logger.debug("完整的分析响应:", fullResponse);  // 输出完整响应
-            await writer.close();
-            break;
-          }
-
-          // 解析响应数据
-          const text = new TextDecoder().decode(value);
-          const lines = text.split('\n').filter(line => line.trim() !== '');
-
-          for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              const data = line.slice(6);
-              if (data === '[DONE]') continue;
-
-              try {
-                // 尝试解析JSON
-                let content = '';
-                try {
-                  const parsed = JSON.parse(data);
-                  content = parsed.choices?.[0]?.delta?.content || 
-                           parsed.choices?.[0]?.content ||
-                           parsed.candidates?.[0]?.content?.parts?.[0]?.text || '';
-                } catch (jsonError) {
-                  logger.error('JSON解析失败:', jsonError);
-                  // 如果JSON解析失败，直接使用文本内容
-                  content = data;
-                  logger.debug("使用原始文本内容:", content);
-                }
-                
-                if (content) {
-                  fullResponse += content;  // 累积响应内容
-                  await writer.write(encoder.encode(content));
-                }
-              } catch (e) {
-                logger.error('处理响应数据时出错:', e);
-              }
-            }
+        for await (const chunk of response) {
+          const content = chunk.choices[0]?.delta?.content || '';
+          if (content) {
+            await writer.write(encoder.encode(content));
           }
         }
+        await writer.close();
       } catch (error) {
         console.error('Error reading stream:', error);
         logger.error('流读取错误:', error);
@@ -211,7 +164,7 @@ ${actions}
     });
 
   } catch (error) {
-    logger.error("Error calling OpenRouter API:", error);
+    logger.error("Error calling OpenAI API:", error);
     return NextResponse.json({ error: "Error analyzing hand" }, { status: 500 });
   }
 }
