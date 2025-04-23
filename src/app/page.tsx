@@ -14,6 +14,10 @@ export default function Home() {
     setAnalysisResult(result);
   };
 
+  const handleClear = () => {
+    setAnalysisResult(null);
+  };
+
   return (
     <SettingsProvider>
       <div className="min-h-screen bg-background">
@@ -33,7 +37,10 @@ export default function Home() {
           <div className="max-w-4xl mx-auto flex flex-col items-center px-4">
             <HandInput onAnalysisResult={handleAnalysisResult} />
             <div className="w-full">
-              <AnalysisResult result={analysisResult} />
+              <AnalysisResult 
+                result={analysisResult} 
+                onClear={handleClear}
+              />
             </div>
           </div>
         </main>
