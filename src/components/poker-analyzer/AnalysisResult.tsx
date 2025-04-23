@@ -13,14 +13,14 @@ const AnalysisResult: React.FC<AnalysisResultProps> = ({ result, onClear }) => {
   const [content, setContent] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
-  const resultRef = useRef<Response | null>(null);
+  const hasProcessedRef = useRef(false);
 
   useEffect(() => {
-    if (!result || result === resultRef.current) {
+    if (!result || hasProcessedRef.current) {
       return;
     }
 
-    resultRef.current = result;
+    hasProcessedRef.current = true;
     setIsLoading(true);
     setContent(''); // 清空之前的内容
 
@@ -61,7 +61,7 @@ const AnalysisResult: React.FC<AnalysisResultProps> = ({ result, onClear }) => {
 
   const handleClear = () => {
     setContent('');
-    resultRef.current = null;
+    hasProcessedRef.current = false;
     if (onClear) {
       onClear();
     }
