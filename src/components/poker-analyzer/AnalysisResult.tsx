@@ -116,19 +116,19 @@ const AnalysisResult: React.FC<AnalysisResultProps> = ({ result, onClear }) => {
               remarkPlugins={[remarkGfm]}
               rehypePlugins={[rehypeRaw]}
               components={{
-                h1: ({node, ...props}) => (
+                h1: ({ ...props}) => (
                   <h1 className="text-2xl font-bold text-foreground mt-6 mb-4" {...props} />
                 ),
-                h2: ({node, ...props}) => (
+                h2: ({ ...props}) => (
                   <h2 className="text-xl font-bold text-foreground mt-5 mb-3" {...props} />
                 ),
-                h3: ({node, ...props}) => (
+                h3: ({ ...props}) => (
                   <h3 className="text-lg font-bold text-foreground mt-4 mb-2" {...props} />
                 ),
-                h4: ({node, ...props}) => (
+                h4: ({ ...props}) => (
                   <h4 className="text-base font-bold text-foreground mt-3 mb-2" {...props} />
                 ),
-                p: ({node, children, ...props}) => {
+                p: ({ children, ...props}) => {
                   if (children && typeof children === 'string' && children.trim() === '') {
                     return null;
                   }
@@ -141,15 +141,15 @@ const AnalysisResult: React.FC<AnalysisResultProps> = ({ result, onClear }) => {
                     </p>
                   );
                 },
-                ul: ({node, ...props}) => (
+                ul: ({ ...props}) => (
                   <ul className="list-disc pl-6 text-foreground space-y-2 mb-4" {...props} />
                 ),
-                li: ({node, children, ...props}) => (
+                li: ({ children, ...props}) => (
                   <li className="text-foreground leading-relaxed" {...props}>
                     {children}
                   </li>
                 ),
-                hr: ({node, ...props}) => (
+                hr: ({ ...props}) => (
                   <hr className="my-6 border-t border-border" {...props} />
                 ),
               }}
