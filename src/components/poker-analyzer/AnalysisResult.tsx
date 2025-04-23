@@ -70,6 +70,44 @@ const AnalysisResult: React.FC<AnalysisResultProps> = ({ result }) => {
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               rehypePlugins={[rehypeRaw]}
+              components={{
+                h1: ({node, ...props}) => (
+                  <h1 className="text-2xl font-bold text-gray-900 mt-6 mb-4" {...props} />
+                ),
+                h2: ({node, ...props}) => (
+                  <h2 className="text-xl font-bold text-gray-900 mt-5 mb-3" {...props} />
+                ),
+                h3: ({node, ...props}) => (
+                  <h3 className="text-lg font-bold text-gray-800 mt-4 mb-2" {...props} />
+                ),
+                h4: ({node, ...props}) => (
+                  <h4 className="text-base font-bold text-gray-800 mt-3 mb-2" {...props} />
+                ),
+                p: ({node, children, ...props}) => {
+                  if (children && typeof children === 'string' && children.trim() === '') {
+                    return null;
+                  }
+                  if (children && typeof children === 'string' && children === '---') {
+                    return <hr className="my-4 border-t border-gray-200" />;
+                  }
+                  return (
+                    <p className="text-gray-700 mb-4 leading-relaxed" {...props}>
+                      {children}
+                    </p>
+                  );
+                },
+                ul: ({node, ...props}) => (
+                  <ul className="list-disc pl-6 text-gray-700 space-y-2 mb-4" {...props} />
+                ),
+                li: ({node, children, ...props}) => (
+                  <li className="text-gray-700 leading-relaxed" {...props}>
+                    {children}
+                  </li>
+                ),
+                hr: ({node, ...props}) => (
+                  <hr className="my-6 border-t border-gray-200" {...props} />
+                ),
+              }}
             >
               {content}
             </ReactMarkdown>

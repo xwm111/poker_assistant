@@ -123,7 +123,8 @@ ${actions}
 - 风险等级：（低/中/高）
 - 期望收益：（正/负，大/中/小）
 
-请确保回答使用以上markdown格式，保持清晰的标题层级和列表格式。`;
+请确保回答使用以上markdown格式，保持清晰的标题层级和列表格式。 markdown格式不要用 三个点包裹起来
+`;
 
     logger.info("Generated prompt:", prompt);
 
