@@ -11,7 +11,7 @@ interface HandInputProps {
 }
 
 const CARD_RANKS = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
-const CARD_SUITS = ['♠', '♥', '♦', '♣'];
+const CARD_SUITS = ['♠️', '♥️', '♦️', '♣️'];
 const STREET_NAMES = ['翻牌前', '翻牌', '转牌', '河牌'];
 
 // 获取位置描述
@@ -239,8 +239,7 @@ const HandInput: React.FC<HandInputProps> = ({ }) => {
             <button
               key={suit}
               onClick={() => handleSuitSelect(suit)}
-              className={`w-full h-16 flex items-center justify-center border rounded-md hover:bg-gray-50 text-3xl
-                ${suit === '♥' || suit === '♦' ? 'text-red-500' : 'text-black'}`}
+              className={`w-full h-16 flex items-center justify-center border rounded-md hover:bg-gray-50 text-3xl`}
             >
               {suit}
             </button>
