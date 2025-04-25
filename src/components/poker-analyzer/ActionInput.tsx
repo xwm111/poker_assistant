@@ -12,7 +12,7 @@ interface ActionInputProps {
 
 interface PlayerAction {
   position: number;
-  action: 'small_blind' | 'big_blind' | 'straddle' | 'fold' | 'call' | 'raise' | 'allin';
+  action: 'small_blind' | 'big_blind' | 'straddle' | 'fold' | 'call' | 'raise' | 'allin' | 'check';
   amount?: number;
   street: '翻牌前' | '翻牌' | '转牌' | '河牌';
 }
@@ -88,6 +88,8 @@ const ActionInput: React.FC<ActionInputProps> = ({
             return `${streetPrefix}位置${action.position} 加注到 ${action.amount}`;
           case 'allin':
             return `${streetPrefix}位置${action.position} 全下 ${action.amount}`;
+          case 'check':
+            return `${streetPrefix}位置${action.position} 过牌`;
           default:
             return '';
         }
@@ -108,6 +110,8 @@ const ActionInput: React.FC<ActionInputProps> = ({
 
   // 获取当前最大下注金额
   const getCurrentBetAmount = () => {
+    console.log('getCurrentBetAmount', currentStreet);
+    console.log('playerActions', playerActions);
     const currentStreetActions = playerActions.filter(action => action.street === currentStreet);
     let maxBet = 0;
     
@@ -128,8 +132,8 @@ const ActionInput: React.FC<ActionInputProps> = ({
   const handleActionSelect = (action: PlayerAction['action']) => {
     setSelectedActionType(action);
     
-    // 只有弃牌直接确认，其他操作都需要输入金额
-    if (action === 'fold') {
+    // 只有弃牌和过牌直接确认，其他操作都需要输入金额
+    if (action === 'fold' || action === 'check') {
       handleActionConfirm(action);
     } else if (action === 'call') {
       // 跟注时预填当前最大注额
@@ -166,6 +170,9 @@ const ActionInput: React.FC<ActionInputProps> = ({
       case 'fold':
         finalAmount = undefined;
         break;
+      case 'check':
+        finalAmount = undefined;
+        break;
       default:
         finalAmount = amount || parseInt(actionAmount) || 0;
     }
@@ -191,7 +198,7 @@ const ActionInput: React.FC<ActionInputProps> = ({
 
   // 检查是否需要自动添加盲注
   useEffect(() => {
-    if (currentStreet === '翻牌前' && playerActions.length === 0) {
+    if (playerActions.length === 0) {
       // 自动添加小盲注
       setPlayerActions([{
         position: 1,
@@ -199,7 +206,7 @@ const ActionInput: React.FC<ActionInputProps> = ({
         amount: settings.smallBlind,
         street: '翻牌前'
       }]);
-    } else if (currentStreet === '翻牌前' && playerActions.length === 1) {
+    } else if (playerActions.length === 1) {
       // 自动添加大盲注
       setPlayerActions(prev => [...prev, {
         position: 2,
@@ -251,19 +258,21 @@ const ActionInput: React.FC<ActionInputProps> = ({
 
   // 修改删除行动的函数
   const handleDeleteAction = (e: React.MouseEvent, street: Street, actionIndex: number) => {
+    console.log('playerActions', playerActions);
+    console.log('删除行动', street, actionIndex);
     e.preventDefault();
     e.stopPropagation();
     const actionToDelete = playerActions.filter(action => action.street === street)[actionIndex];
-    
-    // 不允许删除小盲注和大盲注
-    if (actionToDelete.action === 'small_blind' || actionToDelete.action === 'big_blind') {
+    console.log('actionToDelete', actionToDelete);
+    // 不允许删除翻牌前的小盲注和大盲注
+    if (actionToDelete.street === '翻牌前' && (actionToDelete.action === 'small_blind' || actionToDelete.action === 'big_blind')) {
       return;
     }
-    
-    const newActions = playerActions.filter((action, index) => {
-      return !(action.street === street && index === actionIndex);
-    });
+
+    //从 playerActions 中删除对象 actionToDelete
+    const newActions = playerActions.filter(action => action !== actionToDelete);
     setPlayerActions(newActions);
+
   };
 
   return (
@@ -457,6 +466,15 @@ const ActionInput: React.FC<ActionInputProps> = ({
                   >
                     弃牌
                   </button>
+                  {selectedActionStreet !== '翻牌前' && (
+                    <button
+                      type="button"
+                      onClick={() => handleActionSelect('check')}
+                      className="px-3 py-1 text-sm bg-gray-50 text-blue-600 rounded-md hover:bg-gray-100"
+                    >
+                      过牌
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={() => handleActionSelect('call')}
