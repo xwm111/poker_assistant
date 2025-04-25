@@ -34,6 +34,8 @@ const HandInput: React.FC<HandInputProps> = ({ }) => {
   const [selectedPosition, setSelectedPosition] = useState<number | null>(null);
   const [selectedStreet, setSelectedStreet] = useState('翻牌前');
   const [playerStacks, setPlayerStacks] = useState<Array<{ position: number; stack: number }>>([]);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [showHandWarning, setShowHandWarning] = useState(false);
   
   // 初始化玩家筹码
   useEffect(() => {
@@ -76,8 +78,27 @@ const HandInput: React.FC<HandInputProps> = ({ }) => {
   const [showSuitSelector, setShowSuitSelector] = useState(false);
   const [tempRank, setTempRank] = useState<string | null>(null);
 
+  // 监听手牌状态变化
+  useEffect(() => {
+    if (selectedHand.card1 && selectedHand.card2) {
+      setShowHandWarning(false);
+    }
+  }, [selectedHand]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // 检查手牌是否完整
+    if (!selectedHand.card1 || !selectedHand.card2) {
+      setShowHandWarning(true);
+      return;
+    }
+    
+    setShowConfirmDialog(true);
+  };
+
+  const handleConfirmAnalysis = async () => {
+    setShowConfirmDialog(false);
     setIsLoading(true);
     setError(null);
 
@@ -118,6 +139,10 @@ const HandInput: React.FC<HandInputProps> = ({ }) => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleCancelAnalysis = () => {
+    setShowConfirmDialog(false);
   };
 
   const handleCardClick = (cardType: 'card1' | 'card2') => {
@@ -300,6 +325,11 @@ const HandInput: React.FC<HandInputProps> = ({ }) => {
           {renderCard('card1', selectedHand.card1)}
           {renderCard('card2', selectedHand.card2)}
         </div>
+        {showHandWarning && (
+          <p className="text-red-500 text-sm mt-2">
+            请先选择完整的手牌
+          </p>
+        )}
       </div>
 
       {showRankSelector && renderRankSelector()}
@@ -389,6 +419,30 @@ const HandInput: React.FC<HandInputProps> = ({ }) => {
           "开始分析"
         )}
       </button>
+
+      {/* 确认对话框 */}
+      {showConfirmDialog && (
+        <div className="fixed inset-0 bg-gray-900/70 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-80">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">确认开始分析</h3>
+            <p className="text-gray-600 mb-6">确定要开始分析当前手牌吗？</p>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={handleCancelAnalysis}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                取消
+              </button>
+              <button
+                onClick={handleConfirmAnalysis}
+                className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                确定
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <AnalysisResult result={analysisResult} />
 
